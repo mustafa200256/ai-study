@@ -1,0 +1,18 @@
+R_DEF: Internal format may change without notice
+local
+color beige_soft
+color black
+color caramel_warm
+color gold_accent
+color gold_primary
+color navy_dark
+color navy_surface
+color white
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+string app_name_en
+string developer_name
+style Theme.RafeeqStudentAI

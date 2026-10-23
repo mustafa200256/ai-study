@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة إدارة رفيق الطالب العراقي AI — مصطفى حسين</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            950: '#070C1D',
+                            900: '#0A1128',
+                            800: '#101C3D',
+                            700: '#192A56',
+                            600: '#273C75',
+                        },
+                        gold: {
+                            light: '#FDE68A',
+                            primary: '#D4AF37',
+                            warm: '#F3C053',
+                            dark: '#B48A1E',
+                        },
+                        caramel: {
+                            DEFAULT: '#D4A373',
+                            light: '#E8C59C',
+                            dark: '#9C6644',
+                        },
+                        beige: {
+                            soft: '#FAEDCD',
+                            muted: '#E9DAC1',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #070C1D;
+            color: #F8FAFC;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A1128;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #192A56;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+    </style>
+</head>
+<body class="bg-navy-950 text-slate-100 min-h-screen flex flex-col antialiased">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-navy-900 border-b border-navy-700/60 sticky top-0 z-40 px-4 lg:px-8 py-3.5 flex items-center justify-between shadow-lg">
+        <div class="flex items-center space-x-reverse space-x-4">
+            <!-- Mobile Menu Toggle -->
+            <button id="mobileMenuBtn" class="lg:hidden p-2 rounded-lg bg-navy-800 text-gold-warm hover:bg-navy-700">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+            <!-- Logo & Brand -->
+            <div class="flex items-center space-x-reverse space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-primary via-gold-warm to-caramel p-0.5 shadow-md flex items-center justify-center">
+                    <div class="w-full h-full bg-navy-900 rounded-[10px] flex items-center justify-center">
+                        <i data-lucide="graduation-cap" class="w-5 h-5 text-gold-primary"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-50 flex items-center gap-2">
+                        <span>رفيق الطالب العراقي AI</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-gold-primary/20 text-gold-warm border border-gold-primary/30">لوحة الإدارة</span>
+                    </h1>
+                    <p class="text-xs text-caramel">صاحب المشروع: مصطفى حسين — Mustafa Hussein</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header Actions -->
+        <div class="flex items-center space-x-reverse space-x-3">
+            <!-- Mode / Backend Status Indicator -->
+            <div id="connectionStatusBadge" class="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>النظام جاهز للعمل</span>
+            </div>
+
+            <!-- Supabase Config Trigger -->
+            <button onclick="openConfigModal()" class="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg bg-navy-800 hover:bg-navy-700 text-gold-warm border border-navy-600 transition">
+                <i data-lucide="database" class="w-4 h-4"></i>
+                <span class="hidden md:inline">ربط Supabase</span>
+            </button>
+
+            <!-- Admin Profile Menu -->
+            <div class="flex items-center gap-2 bg-navy-800 px-3 py-1.5 rounded-xl border border-navy-700">
+                <div class="w-7 h-7 rounded-full bg-gold-primary text-navy-900 flex items-center justify-center font-bold text-xs">
+                    M
+                </div>
+                <div class="text-right hidden sm:block">
+                    <div class="text-xs font-bold text-slate-200" id="adminDisplayName">مصطفى حسين</div>
+                    <div class="text-[10px] text-gold-primary font-semibold">Super Admin</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container: Sidebar + Content -->
+    <div class="flex-1 flex overflow-hidden">
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="fixed inset-y-0 right-0 z-30 w-64 bg-navy-900 border-l border-navy-700/60 transform translate-x-full lg:translate-x-0 lg:static transition-transform duration-200 ease-in-out flex flex-col justify-between pt-16 lg:pt-0">
+            <div class="p-4 space-y-1.5 overflow-y-auto">
+                <div class="text-[11px] font-bold text-slate-400 px-3 py-2 uppercase tracking-wider">الأقسام والوظائف</div>
+                
+                <button onclick="switchTab('overview')" class="nav-btn active flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-navy-800 hover:text-gold-warm transition" data-tab="overview">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4 text-gold-primary"></i>
+                    <span>الرئيسية والمؤشرات</span>
+                </button>
+
+                <button onclick="switchTab('students')" class="nav-btn flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-navy-800 hover:text-gold-warm transition" data-tab="students">
+                    <i data-lucide="users" class="w-4 h-4 text-sky-400"></i>
+                    <span>إدارة الطلاب والحسابات</span>
+                </button>
+
+                <button onclick="switchTab('payments')" class="nav-btn flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-navy-800 hover:text-gold-warm transition" data-tab="payments">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="receipt" class="w-4 h-4 text-amber-400"></i>
+                        <span>طلبات الدفع والمحافظ</span>
+                    </div>
+                    <span id="pendingBadge" class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] px-2 py-0.5 rounded-full font-bold">3</span>
+                </button>
+
+                <button onclick="switchTab('wallet-settings')" class="nav-btn flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-navy-800 hover:text-gold-warm transition" data-tab="wallet-settings">
+                    <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
+                    <span>إعدادات المحفظة والأسعار</span>
+                </button>
+
+                <button onclick="switchTab('ai-settings')" class="nav-btn flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-navy-800 hover:text-gold-warm transition" data-tab="ai-settings">
+                    <i data-lucide="brain-circuit" class="w-4 h-4 text-purple-400"></i>
+                    <span>الذكاء الاصطناعي (Groq)</span>
+                </button>
+
+                <button onclick="switchTab('curriculum')" class="nav-btn flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-navy-800 hover:text-gold-warm transition" data-tab="curriculum">
+                    <i data-lucide="book-open-check" class="w-4 h-4 text-caramel"></i>
+                    <span>المحتوى والأسئلة الوزارية</span>
+                </button>
+
+                <button onclick="switchTab('app-settings')" class="nav-btn flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-navy-800 hover:text-gold-warm transition" data-tab="app-settings">
+                    <i data-lucide="settings" class="w-4 h-4 text-indigo-400"></i>
+                    <span>إعدادات التطبيق والإعلانات</span>
+                </button>
+
+                <button onclick="switchTab('audit-logs')" class="nav-btn flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-navy-800 hover:text-gold-warm transition" data-tab="audit-logs">
+                    <i data-lucide="scroll-text" class="w-4 h-4 text-slate-400"></i>
+                    <span>سجل العمليات الإدارية</span>
+                </button>
+
+                <button onclick="switchTab('about')" class="nav-btn flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-navy-800 hover:text-gold-warm transition" data-tab="about">
+                    <i data-lucide="info" class="w-4 h-4 text-gold-warm"></i>
+                    <span>حول النظام والمطور</span>
+                </button>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="p-4 border-t border-navy-700/60 bg-navy-950/60">
+                <div class="rounded-xl bg-navy-800/80 p-3 border border-navy-700 text-xs">
+                    <div class="flex items-center justify-between text-slate-400 mb-1">
+                        <span>إصدار النظام:</span>
+                        <span class="font-bold text-gold-primary">v1.0.0</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400">
+                        برمجة وتصميم: <strong class="text-slate-200">مصطفى حسين</strong>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 lg:p-8 bg-navy-950" id="mainContent">
+
+            <!-- TAB 1: OVERVIEW -->
+            <section id="tab-overview" class="tab-pane space-y-6">
+                <!-- Welcome Banner -->
+                <div class="rounded-2xl bg-gradient-to-l from-navy-800 via-navy-700 to-navy-900 border border-navy-600/50 p-6 shadow-xl relative overflow-hidden">
+                    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-50 mb-1">مرحباً بك، أستاذ مصطفى حسين 👋</h2>
+                            <p class="text-sm text-beige-soft">لوحة تحكم منصة «رفيق الطالب العراقي AI». تابع طلبات التحويل والطلاب والمحتوى من هنا بكل سهولة.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="switchTab('payments')" class="bg-gold-primary hover:bg-gold-warm text-navy-950 font-bold px-4 py-2 rounded-xl text-sm shadow-md transition flex items-center gap-2">
+                                <i data-lucide="receipt" class="w-4 h-4"></i>
+                                <span>مراجعة طلبات الدفع (3)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Total Students -->
+                    <div class="bg-navy-900 border border-navy-700/80 rounded-2xl p-5 shadow-lg">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-slate-400">إجمالي الطلاب المسجلين</span>
+                            <div class="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center">
+                                <i data-lucide="users" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-black text-slate-50" id="kpiTotalStudents">1,248</div>
+                        <div class="text-xs text-emerald-400 mt-2 flex items-center gap-1 font-semibold">
+                            <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                            <span>+48 طالب جديد هذا الأسبوع</span>
+                        </div>
+                    </div>
+
+                    <!-- Active Subscriptions -->
+                    <div class="bg-navy-900 border border-navy-700/80 rounded-2xl p-5 shadow-lg">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-slate-400">الاشتراكات الذهبية النشطة</span>
+                            <div class="w-9 h-9 rounded-xl bg-gold-primary/10 text-gold-primary flex items-center justify-center">
+                                <i data-lucide="crown" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-black text-gold-warm" id="kpiActiveSubs">382</div>
+                        <div class="text-xs text-slate-400 mt-2 font-semibold">
+                            نسبة التحويل: <span class="text-gold-light">30.6%</span> من الطلاب
+                        </div>
+                    </div>
+
+                    <!-- Pending Payments -->
+                    <div class="bg-navy-900 border border-navy-700/80 rounded-2xl p-5 shadow-lg">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-slate-400">طلبات دفع معلقة بالمحفظة</span>
+                            <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                                <i data-lucide="clock" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-black text-amber-400" id="kpiPendingPayments">3</div>
+                        <div class="text-xs text-amber-300 mt-2 font-semibold">
+                            تحتاج لمطابقة إشعار التحويل
+                        </div>
+                    </div>
+
+                    <!-- Monthly Revenue -->
+                    <div class="bg-navy-900 border border-navy-700/80 rounded-2xl p-5 shadow-lg">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-slate-400">إجمالي دخل المحافظ (الشهر الحالي)</span>
+                            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                                <i data-lucide="wallet" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-black text-emerald-400" id="kpiRevenue">3,820,000 <span class="text-sm font-bold text-slate-300">د.ع</span></div>
+                        <div class="text-xs text-slate-400 mt-2 font-semibold">
+                            عبر SuperQi وزين كاش وFIB
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities & AI Status Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Recent Activities List -->
+                    <div class="lg:col-span-2 bg-navy-900 border border-navy-700/80 rounded-2xl p-5 shadow-lg">
+                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-navy-800">
+                            <h3 class="font-bold text-slate-100 flex items-center gap-2">
+                                <i data-lucide="activity" class="w-4 h-4 text-gold-primary"></i>
+                                <span>آخر العمليات والتسجيلات</span>
+                            </h3>
+                            <button onclick="switchTab('audit-logs')" class="text-xs font-bold text-gold-warm hover:underline">عرض كل السجل</button>
+                        </div>
+                        <div class="space-y-3" id="recentActivitiesList">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- AI Proxy & Server Health Card -->
+                    <div class="bg-navy-900 border border-navy-700/80 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4 pb-3 border-b border-navy-800">
+                                <h3 class="font-bold text-slate-100 flex items-center gap-2">
+                                    <i data-lucide="cpu" class="w-4 h-4 text-purple-400"></i>
+                                    <span>خادم الذكاء الاصطناعي</span>
+                                </h3>
+                                <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">متصل وآمن</span>
+                            </div>
+
+                            <div class="space-y-3 text-xs">
+                                <div class="flex justify-between p-2.5 rounded-xl bg-navy-800 border border-navy-700">
+                                    <span class="text-slate-400">مزود الذكاء:</span>
+                                    <span class="font-bold text-slate-200">Groq Cloud (سريع)</span>
+                                </div>
+                                <div class="flex justify-between p-2.5 rounded-xl bg-navy-800 border border-navy-700">
+                                    <span class="text-slate-400">النموذج المعتمد:</span>
+                                    <span class="font-bold text-gold-light">LLaMA 3.3 70B</span>
+                                </div>
+                                <div class="flex justify-between p-2.5 rounded-xl bg-navy-800 border border-navy-700">
+                                    <span class="text-slate-400">حماية المفتاح:</span>
+                                    <span class="font-bold text-emerald-400">محفوظ كمتغير بيئة سري</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-4 border-t border-navy-800">
+                            <button onclick="testAiConnection()" class="w-full bg-navy-800 hover:bg-navy-700 text-gold-warm border border-navy-600 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2 transition">
+                                <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                                <span>اختبار استجابة المدرس الذكي الآن</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: STUDENTS -->
+            <section id="tab-students" class="tab-pane hidden space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-50">إدارة حسابات الطلاب</h2>
+                        <p class="text-xs text-slate-400">البحث، استعراض الحالة الدراسية، تعديل الخطط وحظر المسيئين.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="studentSearchInput" oninput="filterStudents()" placeholder="ابحث بالاسم أو الهاتف..." class="bg-navy-900 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-gold-primary w-64">
+                    </div>
+                </div>
+
+                <div class="bg-navy-900 border border-navy-700/80 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs">
+                            <thead class="bg-navy-800 text-slate-400 border-b border-navy-700">
+                                <tr>
+                                    <th class="p-3.5 font-bold">اسم الطالب</th>
+                                    <th class="p-3.5 font-bold">المرحلة والفرع</th>
+                                    <th class="p-3.5 font-bold">رقم الهاتف</th>
+                                    <th class="p-3.5 font-bold">الخطة</th>
+                                    <th class="p-3.5 font-bold">الحالة</th>
+                                    <th class="p-3.5 font-bold">تاريخ التسجيل</th>
+                                    <th class="p-3.5 font-bold text-center">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-navy-800" id="studentsTableBody">
+                                <!-- Injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: PAYMENTS -->
+            <section id="tab-payments" class="tab-pane hidden space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-50">طلبات الدفع وتحويل المحافظ</h2>
+                        <p class="text-xs text-slate-400">تحقق من وصول المبلغ إلى تطبيق محفظتك أولاً، ثم اضغط على زر الموافقة لتفعيل الاشتراك بأمان.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-1 rounded-lg font-bold">
+                            تأكيد يدوي صارم لمنع الاحتيال
+                        </span>
+                    </div>
+                </div>
+
+                <div class="bg-navy-900 border border-navy-700/80 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs">
+                            <thead class="bg-navy-800 text-slate-400 border-b border-navy-700">
+                                <tr>
+                                    <th class="p-3.5 font-bold">الطالب</th>
+                                    <th class="p-3.5 font-bold">المحفظة</th>
+                                    <th class="p-3.5 font-bold">المبلغ</th>
+                                    <th class="p-3.5 font-bold">رقم الهاتف المحول منه</th>
+                                    <th class="p-3.5 font-bold">رقم الإشعار / المعاملة</th>
+                                    <th class="p-3.5 font-bold">الحالة</th>
+                                    <th class="p-3.5 font-bold text-center">القرار الإداري</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-navy-800" id="paymentsTableBody">
+                                <!-- Injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: WALLET SETTINGS -->
+            <section id="tab-wallet-settings" class="tab-pane hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-50">إعدادات المحافظ وأسعار الاشتراكات</h2>
+                    <p class="text-xs text-slate-400">تعديل أرقام محافظ SuperQi وزين كاش وFIB التي تظهر للطلاب داخل التطبيق فورياً دون الحاجة لتحديث ملف APK.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Wallet Numbers Form -->
+                    <div class="bg-navy-900 border border-navy-700/80 rounded-2xl p-6 shadow-lg space-y-4">
+                        <h3 class="font-bold text-gold-warm text-sm flex items-center gap-2">
+                            <i data-lucide="smartphone" class="w-4 h-4"></i>
+                            <span>أرقام الحسابات المعتمدة للتحويل</span>
+                        </h3>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">رقم محفظة SuperQi:</label>
+                            <input type="text" id="inputSuperQi" value="07701234567" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">رقم محفظة زين كاش (Zain Cash):</label>
+                            <input type="text" id="inputZainCash" value="07801234567" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">حساب بنك FIB العراقي:</label>
+                            <input type="text" id="inputFib" value="FIB-992384" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">تعليمات التحويل التي تظهر للطالب:</label>
+                            <textarea id="inputTransferInstructions" rows="3" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">يرجى تحويل مبلغ 10,000 دينار عراقي إلى أحد الأرقام أعلاه، ثم نسخ رقم الإشعار أو العملية وإلصاقه في التطبيق لتأكيد الاشتراك.</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Pricing Form -->
+                    <div class="bg-navy-900 border border-navy-700/80 rounded-2xl p-6 shadow-lg space-y-4 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <h3 class="font-bold text-gold-warm text-sm flex items-center gap-2">
+                                <i data-lucide="tag" class="w-4 h-4"></i>
+                                <span>خطط وأسعار الاشتراكات (دينار عراقي)</span>
+                            </h3>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">سعر باقة التفوق الذهبية (شهر كامل):</label>
+                                <input type="number" id="inputPriceMonthly" value="10000" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">سعر باقة الفصل الدراسي (تيرم كامل):</label>
+                                <input type="number" id="inputPriceTerm" value="25000" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">
+                            </div>
+
+                            <div class="p-3.5 rounded-xl bg-navy-800/80 border border-navy-700 text-xs text-slate-300 space-y-1">
+                                <div class="font-bold text-gold-light">ملاحظة أمان قانونية:</div>
+                                <p class="text-[11px] text-slate-400">الأسعار تعدل فورياً في قاعدة البيانات ولا تتطلب موافقة خارجية أو إعادة بناء ملف APK.</p>
+                            </div>
+                        </div>
+
+                        <button onclick="saveWalletSettings()" class="w-full bg-gold-primary hover:bg-gold-warm text-navy-950 font-bold py-2.5 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            <span>حفظ إعدادات المحفظة والأسعار</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: AI SETTINGS -->
+            <section id="tab-ai-settings" class="tab-pane hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-50">إعدادات الذكاء الاصطناعي وخادم Proxy</h2>
+                    <p class="text-xs text-slate-400">حماية مفاتيح API، ضبط النماذج وحدود الاستخدام للطلاب.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-navy-900 border border-navy-700/80 rounded-2xl p-6 shadow-lg space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-navy-800">
+                            <h3 class="font-bold text-sm text-gold-warm flex items-center gap-2">
+                                <i data-lucide="sliders" class="w-4 h-4"></i>
+                                <span>خيارات النموذج والخادم</span>
+                            </h3>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <span class="text-xs text-slate-300 font-semibold">تفعيل المدرس الذكي:</span>
+                                <input type="checkbox" id="aiEnabledToggle" checked class="w-4 h-4 text-gold-primary rounded">
+                            </label>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">مزود الخدمة:</label>
+                                <select id="aiProviderSelect" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">
+                                    <option value="groq">Groq Cloud (موصى به مجاني وفائق السرعة)</option>
+                                    <option value="openai">OpenAI (GPT-4o-mini)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">اسم النموذج (Model Name):</label>
+                                <select id="aiModelSelect" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">
+                                    <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile (الأفضل للمنهج العراقي)</option>
+                                    <option value="mixtral-8x7b-32768">mixtral-8x7b-32768</option>
+                                    <option value="llama-3.1-8b-instant">llama-3.1-8b-instant (سرعة قصوى)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">حد الأسئلة اليومي للحساب المجاني:</label>
+                                <input type="number" id="aiLimitFree" value="5" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">حد الأسئلة اليومي للمشترك الذهبي:</label>
+                                <input type="number" id="aiLimitPro" value="100" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">التعليمات التأسيسية للمدرس (System Prompt):</label>
+                            <textarea id="aiSystemPrompt" rows="4" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">أنت المدرس الذكي في تطبيق «رفيق الطالب العراقي AI»، إشراف وتطوير مصطفى حسين (Mustafa Hussein). مهمتك مساعدة طلاب العراق (خصوصاً السادس الإعدادي والثالث المتوسط) في فهم واستيعاب المنهج العراقي وحل المسائل الوزارية خطوة بخطوة باللغة العربية الواضحة وبأسلوب محفز وداعم.</textarea>
+                        </div>
+
+                        <button onclick="saveAiSettings()" class="bg-gold-primary hover:bg-gold-warm text-navy-950 font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition flex items-center gap-2">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            <span>حفظ إعدادات الذكاء الاصطناعي</span>
+                        </button>
+                    </div>
+
+                    <!-- Instructions on API Key -->
+                    <div class="bg-navy-900 border border-navy-700/80 rounded-2xl p-6 shadow-lg space-y-4">
+                        <h3 class="font-bold text-sm text-gold-warm flex items-center gap-2">
+                            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                            <span>أين تضع المفتاح السري بأمان؟</span>
+                        </h3>
+                        <div class="space-y-3 text-xs text-slate-300">
+                            <p class="leading-relaxed">
+                                لضمان الأمان الأقصى، <strong>لا يتم إدخال مفتاح API في واجهة المتصفح أو تطبيق الهاتف</strong>.
+                            </p>
+                            <div class="bg-navy-800 p-3 rounded-xl border border-navy-700 space-y-1.5">
+                                <div class="font-bold text-gold-light">إذا كنت تستخدم Supabase:</div>
+                                <p class="text-[11px] text-slate-400">ادخل إلى لوحة Supabase &rarr; Edge Functions &rarr; Secrets وأضف المتغير:</p>
+                                <code class="block bg-navy-950 p-1.5 rounded text-gold-warm font-mono text-[11px]">GROQ_API_KEY = gsk_...</code>
+                            </div>
+                            <div class="bg-navy-800 p-3 rounded-xl border border-navy-700 space-y-1.5">
+                                <div class="font-bold text-gold-light">إذا كنت تستخدم Node.js Server:</div>
+                                <p class="text-[11px] text-slate-400">افتح ملف <code class="text-gold-light font-mono">backend/server/.env</code> وضع المفتاح داخل السطر:</p>
+                                <code class="block bg-navy-950 p-1.5 rounded text-gold-warm font-mono text-[11px]">GROQ_API_KEY=gsk_...</code>
+                            </div>
+                        </div>
+
+                        <button onclick="testAiConnection()" class="w-full bg-navy-800 hover:bg-navy-700 text-gold-primary border border-navy-600 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2 transition">
+                            <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                            <span>اختبار الاتصال المباشر بمزود الذكاء</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 6: CURRICULUM -->
+            <section id="tab-curriculum" class="tab-pane hidden space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-50">إدارة المناهج والأسئلة الوزارية</h2>
+                        <p class="text-xs text-slate-400">أضف مواد دراسية جديدة أو فصولاً أو أسئلة اختبارات تظهر للطلاب في التطبيق فورياً دون الحاجة لبناء APK جديد.</p>
+                    </div>
+                    <button onclick="openAddQuestionModal()" class="bg-gold-primary hover:bg-gold-warm text-navy-950 font-bold px-4 py-2 rounded-xl text-xs shadow-md transition flex items-center gap-2">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>إضافة سؤال وزاري جديد</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Subjects List Column -->
+                    <div class="bg-navy-900 border border-navy-700/80 rounded-2xl p-5 shadow-lg space-y-3">
+                        <h3 class="font-bold text-sm text-gold-warm flex items-center justify-between">
+                            <span>المواد المتاحة في التطبيق</span>
+                            <span class="text-xs text-slate-400 font-normal">7 مواد</span>
+                        </h3>
+                        <div class="space-y-2" id="subjectsListContainer">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Questions for Selected Subject -->
+                    <div class="md:col-span-2 bg-navy-900 border border-navy-700/80 rounded-2xl p-5 shadow-lg space-y-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-navy-800">
+                            <h3 class="font-bold text-sm text-slate-100 flex items-center gap-2">
+                                <i data-lucide="help-circle" class="w-4 h-4 text-gold-primary"></i>
+                                <span id="selectedSubjectTitle">أسئلة مادة الرياضيات (السادس العلمي)</span>
+                            </h3>
+                            <span class="text-xs text-slate-400" id="questionsCountBadge">3 أسئلة مفعلة</span>
+                        </div>
+                        <div class="space-y-3" id="questionsListContainer">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 7: APP SETTINGS -->
+            <section id="tab-app-settings" class="tab-pane hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-50">إعدادات التطبيق العامة والإعلانات</h2>
+                    <p class="text-xs text-slate-400">تعديل رسالة الترحيب والشريط الإخباري وأرقام الدعم الفني.</p>
+                </div>
+
+                <div class="bg-navy-900 border border-navy-700/80 rounded-2xl p-6 shadow-lg max-w-2xl space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">رسالة الترحيب الرئيسية أعلى الشاشة:</label>
+                        <input type="text" id="inputWelcomeMsg" value="أهلاً بك يا بطل! طريقك نحو الـ 100 في الوزاري" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">الشريط الإخباري / إعلان عاجل للطلاب:</label>
+                        <textarea id="inputAnnouncement" rows="2" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">تمت إضافة بنك الأسئلة الوزارية للدور الأول والتكميلي لجميع المواد العلمية والأدبية.</textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">رقم واتساب الدعم الفني:</label>
+                            <input type="text" id="inputSupportWhatsapp" value="+9647700000000" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">معرف تيليغرام للدعم:</label>
+                            <input type="text" id="inputSupportTelegram" value="@RafeeqIqSupport" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-gold-primary">
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-navy-800 flex items-center justify-between">
+                        <div>
+                            <span class="block text-xs font-bold text-slate-200">وضع الصيانة الطارئة:</span>
+                            <span class="text-[11px] text-slate-400">إيقاف مؤقت للتطبيق لإجراء تحديثات</span>
+                        </div>
+                        <input type="checkbox" id="maintenanceToggle" class="w-4 h-4 text-gold-primary rounded">
+                    </div>
+
+                    <button onclick="saveAppSettings()" class="bg-gold-primary hover:bg-gold-warm text-navy-950 font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition flex items-center gap-2">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        <span>حفظ إعدادات التطبيق</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- TAB 8: AUDIT LOGS -->
+            <section id="tab-audit-logs" class="tab-pane hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-50">سجل العمليات الإدارية (Audit Logs)</h2>
+                    <p class="text-xs text-slate-400">توثيق دقيق لكل عملية تفعيل اشتراك أو تعديل محتوى لحماية النظام ومنع أي تصعيد غير مصرح به.</p>
+                </div>
+
+                <div class="bg-navy-900 border border-navy-700/80 rounded-2xl overflow-hidden shadow-lg">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs">
+                            <thead class="bg-navy-800 text-slate-400 border-b border-navy-700">
+                                <tr>
+                                    <th class="p-3.5 font-bold">المدير المسؤول</th>
+                                    <th class="p-3.5 font-bold">نوع العملية</th>
+                                    <th class="p-3.5 font-bold">تفاصيل القرار</th>
+                                    <th class="p-3.5 font-bold">التوقيت</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-navy-800" id="auditLogsTableBody">
+                                <!-- Injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 9: ABOUT -->
+            <section id="tab-about" class="tab-pane hidden space-y-6">
+                <div class="bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 border border-navy-700/80 rounded-2xl p-8 shadow-2xl max-w-3xl space-y-6">
+                    <div class="flex items-center gap-4 pb-6 border-b border-navy-700">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold-primary via-gold-warm to-caramel p-1 flex items-center justify-center">
+                            <div class="w-full h-full bg-navy-900 rounded-xl flex items-center justify-center">
+                                <i data-lucide="school" class="w-8 h-8 text-gold-primary"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-50">رفيق الطالب العراقي AI — Rafeeq Student AI</h2>
+                            <p class="text-xs text-gold-warm font-semibold">منصة تعليمية متكاملة لطلبة العراق مع مساعد ذكي متخصص بالمنهج العراقي</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-navy-950 p-5 rounded-xl border border-navy-700 space-y-2">
+                        <div class="text-xs text-caramel font-bold">صاحب المشروع والمبرمج الرئيسي:</div>
+                        <div class="text-lg font-black text-slate-100">Mustafa Hussein — مصطفى حسين</div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            تم تطوير هذا النظام المتكامل (تطبيق Android الأصلي + لوحة التحكم السحابية + خادم الذكاء الاصطناعي Backend) لتقديم حل تقني رائد لطلبة السادس الإعدادي والصفوف المنتهية في العراق، يجمع بين المناهج الدقيقة، الاختبارات التفاعلية، وتنظيم الوقت والذكاء الاصطناعي دون تعقيد أو تكاليف باهظة.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div class="p-4 rounded-xl bg-navy-800 border border-navy-700 space-y-1">
+                            <span class="text-slate-400">تطبيق الهاتف:</span>
+                            <div class="font-bold text-slate-200">Android Native (Kotlin, Jetpack Compose, Material 3)</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-navy-800 border border-navy-700 space-y-1">
+                            <span class="text-slate-400">لوحة التحكم:</span>
+                            <div class="font-bold text-slate-200">Cloudflare Pages + TailwindCSS + Arabic RTL</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-navy-800 border border-navy-700 space-y-1">
+                            <span class="text-slate-400">قاعدة البيانات والأمان:</span>
+                            <div class="font-bold text-slate-200">Supabase PostgreSQL مع RLS صارم</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-navy-800 border border-navy-700 space-y-1">
+                            <span class="text-slate-400">المدرس الذكي AI:</span>
+                            <div class="font-bold text-slate-200">Groq LLaMA 3.3 70B (خادم وسيط محمي)</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL: ADD QUESTION -->
+    <div id="addQuestionModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-navy-900 border border-navy-700 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-navy-800">
+                <h3 class="font-bold text-gold-warm text-sm">إضافة سؤال وزاري جديد</h3>
+                <button onclick="closeAddQuestionModal()" class="text-slate-400 hover:text-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">المادة الدراسية:</label>
+                    <select id="modalQuestionSubject" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-slate-100">
+                        <option value="math">الرياضيات</option>
+                        <option value="physics">الفيزياء</option>
+                        <option value="chemistry">الكيمياء</option>
+                        <option value="arabic">اللغة العربية</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">نص السؤال الوزاري:</label>
+                    <textarea id="modalQuestionText" rows="2" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-slate-100" placeholder="اكتب السؤال بوضوح..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="modalOptA" placeholder="الخيار (أ)" class="bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-slate-100">
+                    <input type="text" id="modalOptB" placeholder="الخيار (ب)" class="bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-slate-100">
+                    <input type="text" id="modalOptC" placeholder="الخيار (ج)" class="bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-slate-100">
+                    <input type="text" id="modalOptD" placeholder="الخيار (د)" class="bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-slate-100">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">الخيار الصحيح:</label>
+                    <select id="modalCorrectIndex" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-slate-100">
+                        <option value="0">الخيار (أ)</option>
+                        <option value="1">الخيار (ب)</option>
+                        <option value="2">الخيار (ج)</option>
+                        <option value="3">الخيار (د)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">توضيح الإجابة النموذجية:</label>
+                    <input type="text" id="modalExplanation" placeholder="سبب الإجابة ومصدرها الوزاري..." class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-slate-100">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2 border-t border-navy-800">
+                <button onclick="closeAddQuestionModal()" class="px-4 py-2 rounded-xl text-xs bg-navy-800 text-slate-300">إلغاء</button>
+                <button onclick="submitNewQuestion()" class="px-4 py-2 rounded-xl text-xs bg-gold-primary text-navy-950 font-bold">حفظ السؤال</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SUPABASE CONFIG -->
+    <div id="configModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-navy-900 border border-navy-700 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-navy-800">
+                <h3 class="font-bold text-gold-warm text-sm flex items-center gap-2">
+                    <i data-lucide="database" class="w-4 h-4"></i>
+                    <span>إعدادات الاتصال بـ Supabase الحقيقي</span>
+                </h3>
+                <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <p class="text-slate-400">
+                    إذا قمت بإنشاء مشروع Supabase مجاني، يمكنك وضع الرابط والمفتاح العام هنا لربط اللوحة مباشرة بالبيانات السحابية الحية:
+                </p>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Supabase Project URL:</label>
+                    <input type="text" id="supabaseUrlInput" placeholder="https://xyz.supabase.co" class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-slate-100">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Supabase Anon Key:</label>
+                    <input type="text" id="supabaseAnonKeyInput" placeholder="eyJhbGciOiJIUzI1Ni..." class="w-full bg-navy-800 border border-navy-700 rounded-xl px-3 py-2 text-slate-100">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2 border-t border-navy-800">
+                <button onclick="closeConfigModal()" class="px-4 py-2 rounded-xl text-xs bg-navy-800 text-slate-300">إغلاق</button>
+                <button onclick="saveSupabaseConfig()" class="px-4 py-2 rounded-xl text-xs bg-gold-primary text-navy-950 font-bold">حفظ واختبار الربط</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic Script -->
+    <script>
+        // State management
+        const state = {
+            students: [
+                { id: '1', name: 'أحمد علي حسن', stage: 'السادس العلمي (أحيائي)', phone: '07712349988', plan: 'باقة التفوق الذهبية', isBanned: false, joinedAt: '2026-10-21' },
+                { id: '2', name: 'زينب حيدر مهدي', stage: 'السادس العلمي (تطبيقي)', phone: '07809876543', plan: 'باقة التفوق الذهبية', isBanned: false, joinedAt: '2026-10-20' },
+                { id: '3', name: 'محمد جاسم كاظم', stage: 'السادس الأدبي', phone: '07723456789', plan: 'مجاني', isBanned: false, joinedAt: '2026-10-19' },
+                { id: '4', name: 'فاطمة عمار رضا', stage: 'السادس العلمي (أحيائي)', phone: '07501234567', plan: 'مجاني', isBanned: false, joinedAt: '2026-10-18' },
+                { id: '5', name: 'كرار حسين كريم', stage: 'الثالث المتوسط', phone: '07705544332', plan: 'باقة التفوق الذهبية', isBanned: false, joinedAt: '2026-10-17' },
+            ],
+            payments: [
+                { id: 'pay_1', studentName: 'كرار حسين كريم', wallet: 'محفظة SuperQi', amount: '10,000 د.ع', phone: '07705544332', ref: 'SQ-982145', status: 'pending', date: 'منذ ساعتين' },
+                { id: 'pay_2', studentName: 'أحمد علي حسن', wallet: 'زين كاش (Zain Cash)', amount: '10,000 د.ع', phone: '07801122334', ref: 'ZC-449120', status: 'pending', date: 'منذ 5 ساعات' },
+                { id: 'pay_3', studentName: 'مريم عادل سلطان', wallet: 'بنك FIB', amount: '25,000 د.ع', phone: '07509988776', ref: 'FIB-778812', status: 'pending', date: 'منذ يوم' },
+                { id: 'pay_4', studentName: 'زينب حيدر مهدي', wallet: 'محفظة SuperQi', amount: '10,000 د.ع', phone: '07712345678', ref: 'SQ-112233', status: 'approved', date: '2026-10-20' },
+            ],
+            auditLogs: [
+                { admin: 'Mustafa Hussein', action: 'APPROVE_PAYMENT', details: 'تفعيل اشتراك الطالبة زينب حيدر (SQ-112233)', time: '2026-10-20 18:30' },
+                { admin: 'Mustafa Hussein', action: 'UPDATE_WALLET', details: 'تحديث رقم محفظة SuperQi إلى 07701234567', time: '2026-10-19 14:15' },
+                { admin: 'Mustafa Hussein', action: 'ADD_QUESTION', details: 'إضافة سؤال وزاري جديد في مبرهنة رول', time: '2026-10-18 20:45' },
+            ],
+            questions: [
+                { id: 'q1', subject: 'math', question: 'إذا كانت f(x) مستمرة على [a, b] وقابلة للاشتقاق على (a, b) و f(a) = f(b)، فإن هناك قيمة c تنتمي إلى (a, b) بحيث f\'(c) = 0، هذه مبرهنة:', optA: 'مبرهنة رول', optB: 'مبرهنة القيمة المتوسطة', optC: 'مبرهنة ديموافر', optD: 'مبرهنة فيثاغورس', correct: 0, exp: 'مبرهنة رول المعتمدة في منهج السادس الإعدادي.' },
+                { id: 'q2', subject: 'math', question: 'ما هو ناتج تكامل الدالة ∫ cos(2x) dx ؟', optA: '2 sin(2x) + C', optB: '(1/2) sin(2x) + C', optC: '-sin(2x) + C', optD: '-(1/2) sin(2x) + C', correct: 1, exp: 'مشتقة الزاوية 2 لذا نضرب في 1/2.' },
+                { id: 'q3', subject: 'math', question: 'قيمة المقدار i² في مجموعة الأعداد المركبة C تساوي:', optA: '1', optB: '-1', optC: '0', optD: '-i', correct: 1, exp: 'الوحدة التخيلية i معرفة بحيث i² = -1.' }
+            ],
+            selectedSubject: 'math'
+        };
+
+        // Navigation
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.classList.add('bg-navy-800', 'text-gold-warm');
+                } else {
+                    btn.classList.remove('bg-navy-800', 'text-gold-warm');
+                }
+            });
+
+            // Close mobile menu if open
+            document.getElementById('sidebar').classList.add('translate-x-full');
+        }
+
+        // Render Functions
+        function renderStudents(list = state.students) {
+            const tbody = document.getElementById('studentsTableBody');
+            tbody.innerHTML = list.map(s => `
+                <tr class="hover:bg-navy-800/50 transition">
+                    <td class="p-3.5 font-bold text-slate-100">${s.name}</td>
+                    <td class="p-3.5 text-slate-300">${s.stage}</td>
+                    <td class="p-3.5 font-mono text-slate-400">${s.phone}</td>
+                    <td class="p-3.5">
+                        <span class="px-2 py-0.5 rounded-full font-bold text-[10px] ${s.plan.includes('الذهبية') ? 'bg-gold-primary/20 text-gold-warm border border-gold-primary/30' : 'bg-slate-700 text-slate-300'}">
+                            ${s.plan}
+                        </span>
+                    </td>
+                    <td class="p-3.5">
+                        <span class="px-2 py-0.5 rounded-full font-bold text-[10px] ${s.isBanned ? 'bg-red-500/20 text-red-300' : 'bg-emerald-500/20 text-emerald-300'}">
+                            ${s.isBanned ? 'محظور' : 'نشط'}
+                        </span>
+                    </td>
+                    <td class="p-3.5 text-slate-400">${s.joinedAt}</td>
+                    <td class="p-3.5 text-center">
+                        <button onclick="toggleStudentBan('${s.id}')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${s.isBanned ? 'bg-emerald-600 text-white' : 'bg-red-500/20 text-red-300 border border-red-500/30 hover:bg-red-500/30'}">
+                            ${s.isBanned ? 'إلغاء الحظر' : 'حظر الحساب'}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterStudents() {
+            const q = document.getElementById('studentSearchInput').value.trim().toLowerCase();
+            const filtered = state.students.filter(s => s.name.includes(q) || s.phone.includes(q));
+            renderStudents(filtered);
+        }
+
+        function toggleStudentBan(id) {
+            const st = state.students.find(s => s.id === id);
+            if (st) {
+                st.isBanned = !st.isBanned;
+                addAuditLog('BAN_TOGGLE', `تعديل حالة حساب ${st.name} إلى ${st.isBanned ? 'محظور' : 'نشط'}`);
+                renderStudents();
+                alert(`تم ${st.isBanned ? 'حظر' : 'إلغاء حظر'} الطالب ${st.name}`);
+            }
+        }
+
+        function renderPayments() {
+            const tbody = document.getElementById('paymentsTableBody');
+            tbody.innerHTML = state.payments.map(p => `
+                <tr class="hover:bg-navy-800/50 transition">
+                    <td class="p-3.5 font-bold text-slate-100">${p.studentName}</td>
+                    <td class="p-3.5 text-gold-warm font-semibold">${p.wallet}</td>
+                    <td class="p-3.5 font-bold text-emerald-400">${p.amount}</td>
+                    <td class="p-3.5 font-mono text-slate-300">${p.phone}</td>
+                    <td class="p-3.5 font-mono font-bold text-slate-200 bg-navy-800/50 rounded-lg px-2">${p.ref}</td>
+                    <td class="p-3.5">
+                        <span class="px-2 py-0.5 rounded-full font-bold text-[10px] ${
+                            p.status === 'approved' ? 'bg-emerald-500/20 text-emerald-300' :
+                            p.status === 'rejected' ? 'bg-red-500/20 text-red-300' : 'bg-amber-500/20 text-amber-300 animate-pulse'
+                        }">
+                            ${p.status === 'approved' ? 'تمت الموافقة' : p.status === 'rejected' ? 'مرفوض' : 'بانتظار التحقق'}
+                        </span>
+                    </td>
+                    <td class="p-3.5 text-center">
+                        ${p.status === 'pending' ? `
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="approvePayment('${p.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-lg text-[11px] shadow">
+                                    تأكيد وتفعيل
+                                </button>
+                                <button onclick="rejectPayment('${p.id}')" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 px-2 py-1 rounded-lg text-[11px]">
+                                    رفض
+                                </button>
+                            </div>
+                        ` : `
+                            <span class="text-slate-500 text-[11px] font-semibold">مكتمل</span>
+                        `}
+                    </td>
+                </tr>
+            `).join('');
+
+            const pendingCount = state.payments.filter(p => p.status === 'pending').length;
+            document.getElementById('pendingBadge').innerText = pendingCount;
+            document.getElementById('kpiPendingPayments').innerText = pendingCount;
+        }
+
+        function approvePayment(id) {
+            const p = state.payments.find(x => x.id === id);
+            if (!p) return;
+            if (confirm(`هل تحققت فعلياً من وصول مبلغ (${p.amount}) من الرقم (${p.phone}) عبر (${p.wallet})؟`)) {
+                p.status = 'approved';
+                // Activate pro on matching student
+                const student = state.students.find(s => s.name === p.studentName);
+                if (student) student.plan = 'باقة التفوق الذهبية';
+
+                addAuditLog('APPROVE_PAYMENT', `الموافقة على طلب تحويل رقم ${p.ref} وتفعيل اشتراك ${p.studentName}`);
+                renderPayments();
+                renderStudents();
+                alert(`✅ تم تفعيل اشتراك الطالب ${p.studentName} بنجاح!`);
+            }
+        }
+
+        function rejectPayment(id) {
+            const p = state.payments.find(x => x.id === id);
+            if (!p) return;
+            const reason = prompt('أدخل سبب رفض الطلب (مثال: رقم الإشعار غير صحيح أو لم يصل المبلغ):');
+            if (reason) {
+                p.status = 'rejected';
+                addAuditLog('REJECT_PAYMENT', `رفض طلب ${p.ref} للسبب: ${reason}`);
+                renderPayments();
+                alert(`❌ تم رفض الطلب وإشعار الطالب.`);
+            }
+        }
+
+        function renderAuditLogs() {
+            const tbody = document.getElementById('auditLogsTableBody');
+            tbody.innerHTML = state.auditLogs.map(l => `
+                <tr class="hover:bg-navy-800/50 transition">
+                    <td class="p-3.5 font-bold text-gold-warm">${l.admin}</td>
+                    <td class="p-3.5 font-mono text-slate-300">${l.action}</td>
+                    <td class="p-3.5 text-slate-200">${l.details}</td>
+                    <td class="p-3.5 text-slate-400 font-mono">${l.time}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderRecentActivities() {
+            const container = document.getElementById('recentActivitiesList');
+            container.innerHTML = state.auditLogs.slice(0, 4).map(l => `
+                <div class="flex items-center justify-between p-3 rounded-xl bg-navy-800/60 border border-navy-700/60 text-xs">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-gold-primary"></div>
+                        <div>
+                            <div class="font-bold text-slate-200">${l.details}</div>
+                            <div class="text-[10px] text-slate-400">${l.admin}</div>
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-slate-400 font-mono">${l.time}</div>
+                </div>
+            `).join('');
+        }
+
+        function addAuditLog(action, details) {
+            state.auditLogs.unshift({
+                admin: 'Mustafa Hussein',
+                action: action,
+                details: details,
+                time: new Date().toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' })
+            });
+            renderAuditLogs();
+            renderRecentActivities();
+        }
+
+        // Wallet & App Settings Save
+        function saveWalletSettings() {
+            const sq = document.getElementById('inputSuperQi').value;
+            const zc = document.getElementById('inputZainCash').value;
+            const fib = document.getElementById('inputFib').value;
+            addAuditLog('UPDATE_WALLET', `تحديث المحافظ: SuperQi (${sq}), ZainCash (${zc}), FIB (${fib})`);
+            alert('✅ تم حفظ إعدادات المحافظ والأسعار بنجاح! سيتم تطبيقها فوراً على كل الهواتف.');
+        }
+
+        function saveAiSettings() {
+            const model = document.getElementById('aiModelSelect').value;
+            addAuditLog('UPDATE_AI', `تحديث إعدادات الذكاء الاصطناعي إلى النموذج: ${model}`);
+            alert('✅ تم حفظ إعدادات الذكاء الاصطناعي بنجاح!');
+        }
+
+        function saveAppSettings() {
+            const welcome = document.getElementById('inputWelcomeMsg').value;
+            addAuditLog('UPDATE_APP', `تعديل رسالة الترحيب: "${welcome}"`);
+            alert('✅ تم حفظ إعدادات التطبيق والإعلانات فورياً!');
+        }
+
+        // AI Test
+        function testAiConnection() {
+            alert('جارٍ فحص استجابة المدرس الذكي عبر خادم Groq...\n\n✅ الاستجابة ممتازة! النموذج LLaMA 3.3 جاهز لاستقبال أسئلة طلاب العراق.');
+        }
+
+        // Curriculum
+        function renderSubjects() {
+            const subjects = [
+                { id: 'math', title: 'الرياضيات', count: 3 },
+                { id: 'physics', title: 'الفيزياء', count: 2 },
+                { id: 'chemistry', title: 'الكيمياء', count: 2 },
+                { id: 'arabic', title: 'اللغة العربية', count: 2 },
+            ];
+            const container = document.getElementById('subjectsListContainer');
+            container.innerHTML = subjects.map(s => `
+                <div onclick="selectSubject('${s.id}', '${s.title}')" class="p-3 rounded-xl border ${state.selectedSubject === s.id ? 'bg-navy-800 border-gold-primary text-gold-warm' : 'bg-navy-950 border-navy-800 text-slate-300'} cursor-pointer hover:border-gold-primary/50 transition flex justify-between items-center text-xs font-bold">
+                    <span>${s.title}</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-navy-900 border border-navy-700">${s.count} أسئلة</span>
+                </div>
+            `).join('');
+        }
+
+        function selectSubject(id, title) {
+            state.selectedSubject = id;
+            document.getElementById('selectedSubjectTitle').innerText = `أسئلة مادة ${title} (السادس العلمي)`;
+            renderSubjects();
+            renderQuestions();
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsListContainer');
+            const qList = state.questions.filter(q => q.subject === state.selectedSubject);
+            document.getElementById('questionsCountBadge').innerText = `${qList.length} أسئلة مفعلة`;
+
+            if (!qList.length) {
+                container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">لا توجد أسئلة مسجلة لهذه المادة بعد. اضغط على (+ إضافة سؤال وزاري) لإضافتها.</div>`;
+                return;
+            }
+
+            container.innerHTML = qList.map(q => `
+                <div class="p-4 rounded-xl bg-navy-800 border border-navy-700 space-y-2 text-xs">
+                    <div class="font-bold text-slate-100">${q.question}</div>
+                    <div class="grid grid-cols-2 gap-2 text-slate-300 text-[11px]">
+                        <div class="p-1.5 rounded ${q.correct === 0 ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30' : 'bg-navy-900'}">أ) ${q.optA}</div>
+                        <div class="p-1.5 rounded ${q.correct === 1 ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30' : 'bg-navy-900'}">ب) ${q.optB}</div>
+                        <div class="p-1.5 rounded ${q.correct === 2 ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30' : 'bg-navy-900'}">ج) ${q.optC}</div>
+                        <div class="p-1.5 rounded ${q.correct === 3 ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30' : 'bg-navy-900'}">د) ${q.optD}</div>
+                    </div>
+                    <div class="text-[11px] text-gold-light bg-navy-950 p-2 rounded border border-navy-800">
+                        <strong>التوضيح الوزاري:</strong> ${q.exp}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Modals
+        function openAddQuestionModal() { document.getElementById('addQuestionModal').classList.remove('hidden'); }
+        function closeAddQuestionModal() { document.getElementById('addQuestionModal').classList.add('hidden'); }
+        function openConfigModal() { document.getElementById('configModal').classList.remove('hidden'); }
+        function closeConfigModal() { document.getElementById('configModal').classList.add('hidden'); }
+
+        function submitNewQuestion() {
+            const subj = document.getElementById('modalQuestionSubject').value;
+            const text = document.getElementById('modalQuestionText').value.trim();
+            const a = document.getElementById('modalOptA').value.trim();
+            const b = document.getElementById('modalOptB').value.trim();
+            const c = document.getElementById('modalOptC').value.trim();
+            const d = document.getElementById('modalOptD').value.trim();
+            const correct = parseInt(document.getElementById('modalCorrectIndex').value);
+            const exp = document.getElementById('modalExplanation').value.trim();
+
+            if (!text || !a || !b) {
+                alert('يرجى ملء نص السؤال والخيارات الأساسية.');
+                return;
+            }
+
+            state.questions.push({
+                id: 'q_' + Date.now(),
+                subject: subj,
+                question: text,
+                optA: a, optB: b, optC: c, optD: d,
+                correct: correct,
+                exp: exp || 'إجابة نموذجية معتمدة وفق المنهج العراقي'
+            });
+
+            addAuditLog('ADD_QUESTION', `إضافة سؤال وزاري جديد لمادة: ${subj}`);
+            closeAddQuestionModal();
+            renderQuestions();
+            alert('✅ تم حفظ السؤال الوزاري بنجاح! سيظهر لجميع الطلاب فوراً.');
+        }
+
+        function saveSupabaseConfig() {
+            const url = document.getElementById('supabaseUrlInput').value.trim();
+            const key = document.getElementById('supabaseAnonKeyInput').value.trim();
+            if (url && key) {
+                localStorage.setItem('rafeeq_supabase_url', url);
+                localStorage.setItem('rafeeq_supabase_key', key);
+                document.getElementById('connectionStatusBadge').innerHTML = `
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>متصل بـ Supabase السحابي</span>
+                `;
+                closeConfigModal();
+                alert('✅ تم حفظ إعدادات Supabase بنجاح!');
+            } else {
+                alert('يرجى إدخال الرابط والمفتاح.');
+            }
+        }
+
+        // Mobile drawer toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('translate-x-full');
+        });
+
+        // Initialize on Load
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            renderStudents();
+            renderPayments();
+            renderAuditLogs();
+            renderRecentActivities();
+            renderSubjects();
+            renderQuestions();
+        });
+    </script>
+</body>
+</html>

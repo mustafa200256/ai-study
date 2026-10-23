@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="navy_dark">#0A1128</color>
+    <color name="navy_surface">#101C3D</color>
+    <color name="gold_primary">#D4AF37</color>
+    <color name="gold_accent">#F3C053</color>
+    <color name="caramel_warm">#D4A373</color>
+    <color name="beige_soft">#FAEDCD</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>
